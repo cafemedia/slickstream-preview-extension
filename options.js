@@ -14,6 +14,8 @@
       const options = result.options;
       siteCode.value = options.siteCode;
       server.value = options.server || 'https://guild.network/e1/embed.js'
+    } else {
+      server.value = 'https://guild.network/e1/embed.js'
     }
   });
 })();
