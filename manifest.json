@@ -1,7 +1,7 @@
 {
   "name": "Guild Preview Extension",
-  "version": "0.1.0",
-  "description": "Preview a guild tab on a website",
+  "version": "0.2.0",
+  "description": "Preview Guild widgets on a website",
   "manifest_version": 2,
   "options_page": "options.html",
   "permissions": [
@@ -16,8 +16,5 @@
       "background.js"
     ],
     "persistent": false
-  },
-  "browser_action": {
-    "default_title": "Guildify"
   }
 }
