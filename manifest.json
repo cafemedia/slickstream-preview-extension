@@ -6,7 +6,10 @@
   "options_page": "options.html",
   "permissions": [
     "activeTab",
-    "storage"
+    "storage",
+    "webNavigation",
+    "http://*/",
+    "https://*/"
   ],
   "background": {
     "scripts": [

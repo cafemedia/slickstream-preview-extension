@@ -44,6 +44,8 @@
       padding: 8px 5px;
       border: 1px solid #d8d8d8;
       margin: 20px 0;
+      max-width: 100%;
+      min-width: 100%;
     }
 
     button {
@@ -53,28 +55,64 @@
       font-size: 15px;
       text-transform: uppercase;
       padding: 10px;
-      border: 2px solid white;
       color: white;
       font-weight: bold;
       cursor: pointer;
       user-select: none;
       box-sizing: border-box;
       min-width: 100px;
+      box-shadow: 3px 3px 5px -1px rgba(0, 0, 0, 0.4);
+      transition: box-shadow 0.28s ease;
+    }
+
+    button:active {
+      box-shadow: none;
+    }
+
+    #sitesPanel {
+      padding: 16px;
+      text-align: center;
+    }
+
+    .hostCard {
+      display: inline-block;
+      padding: 20px;
+      background: white;
+      color: #292929;
+      border-radius: 3px;
+      margin: 0 10px 10px 0;
+      box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2);
+    }
+
+    .hostCard button {
+      margin-left: 10px;
+      box-shadow: none;
+      background: #f0f0f0;
+      color: #222;
+      min-width: initial;
+      padding: 5px;
+      font-size: 12px;
+      font-weight: 400;
     }
   </style>
 </head>
 
 <body>
   <div class="card">
+    <input id="server" placeholder="Embed Script URL">
+  </div>
+  <div class="card">
+    <input id="host" placeholder="Host URL">
     <input id="siteCode" placeholder="Site Code">
     <input id="selector" placeholder="After selector for Site Explorer">
     <input id="stripSelector" placeholder="After selector for Film Strip">
     <textarea id="css" placeholder="Custom CSS"></textarea>
-    <input id="server" placeholder="Embed Script URL">
     <div style="margin-top: 40px; text-align: center;">
+      <button id="btnClear">Clear</button>
       <button id="btnSave">Save</button>
     </div>
   </div>
+  <div id="sitesPanel"></div>
 </body>
 <script src="options.js"></script>
 
