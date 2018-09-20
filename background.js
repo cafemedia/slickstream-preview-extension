@@ -14,9 +14,9 @@ function inject(options) {
   const css = "`" + (options.css || '').replace('\n', '') + "`";
   const code = `
     ((siteCode, css, selector, stripSelector, scriptUrl) => {
-      if (!window.guild) {
-        window.guild = { site: siteCode };
-        localStorage.setItem('guild-nav-extension-config', JSON.stringify(window.guild));
+      if (!window.slick) {
+        window.slick = { site: siteCode };
+        localStorage.setItem('guild-nav-extension-config', JSON.stringify(window.slick));
         if (css) {
           const styleNode = document.createElement('style');
           styleNode.innerHTML = css;
