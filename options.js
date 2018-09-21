@@ -37,7 +37,7 @@ function onCardSave() {
 function doSave() {
   const toSave = {
     siteData: data,
-    server: server.value.trim() || 'https://guild.network/e1/embed-nav.js'
+    server: server.value.trim() || 'https://poweredbyslick.com/e1/embed-nav.js'
   }
   chrome.storage.sync.set(toSave);
   refreshSites();
@@ -46,7 +46,7 @@ function doSave() {
 async function load() {
   chrome.storage.sync.get(['siteData', 'server'], (result) => {
     data = result.siteData || {};
-    serverUrl = result.server || 'https://guild.network/e1/embed-nav.js';
+    serverUrl = result.server || 'https://poweredbyslick.com/e1/embed-nav.js';
     server.value = serverUrl;
     refreshSites();
   });

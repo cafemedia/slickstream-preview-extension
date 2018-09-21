@@ -4,7 +4,7 @@ async function getSiteData() {
   return new Promise((resolve) => {
     chrome.storage.sync.get(['siteData', 'server'], (result) => {
       const siteData = result.siteData;
-      serverUrl = result.server || 'https://guild.network/e1/embed-nav.js';
+      serverUrl = result.server || 'https://poweredbyslick.com//e1/embed-nav.js';
       resolve(siteData || {});
     });
   });
@@ -16,7 +16,7 @@ function inject(options) {
     ((siteCode, css, selector, stripSelector, scriptUrl) => {
       if (!window.slick) {
         window.slick = { site: siteCode };
-        localStorage.setItem('guild-nav-extension-config', JSON.stringify(window.slick));
+        localStorage.setItem('slick-nav-extension-config', JSON.stringify(window.slick));
         if (css) {
           const styleNode = document.createElement('style');
           styleNode.innerHTML = css;
@@ -28,7 +28,7 @@ function inject(options) {
             for (let i = 0; i < nodes.length; i++) {
               const n = nodes[i];
               const div = document.createElement('div');
-              div.classList.add('guild-explorer');
+              div.classList.add('slick-explorer');
               n.insertAdjacentElement('afterend', div);
             }
           }
@@ -39,7 +39,7 @@ function inject(options) {
             for (let i = 0; i < nodes.length; i++) {
               const n = nodes[i];
               const div = document.createElement('div');
-              div.classList.add('guild-film-strip');
+              div.classList.add('slick-film-strip');
               n.insertAdjacentElement('afterend', div);
             }
           }

@@ -1,10 +1,11 @@
 {
-  "name": "Guild Preview Extension",
-  "version": "0.2.0",
-  "description": "Preview Guild widgets on a website",
+  "name": "Slick Preview Extension",
+  "version": "0.3.0",
+  "description": "Preview Slick widgets on a website",
   "manifest_version": 2,
   "options_page": "options.html",
   "permissions": [
+    "tabs",
     "activeTab",
     "storage",
     "webNavigation",
