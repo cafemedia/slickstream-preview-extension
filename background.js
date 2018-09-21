@@ -13,42 +13,34 @@ async function getSiteData() {
 function inject(options) {
   const css = "`" + (options.css || '').replace('\n', '') + "`";
   const code = `
-    ((siteCode, css, selector, stripSelector, scriptUrl) => {
+    ((siteCode, css, selector, stripSelector, scriptUrl, stripPosition, explorerPosition) => {
+      stripPosition = stripPosition || 'after selector';
+      explorerPosition = explorerPosition || 'after selector';
       if (!window.slick) {
         window.slick = { site: siteCode };
+        if (selector) {
+          window.slick.explorer = {
+            position: explorerPosition,
+            selector: selector
+          };
+        }
+        if (stripSelector) {
+          window.slick.filmStrip = {
+            position: stripPosition,
+            selector: stripSelector
+          };
+        }
         localStorage.setItem('slick-nav-extension-config', JSON.stringify(window.slick));
         if (css) {
           const styleNode = document.createElement('style');
           styleNode.innerHTML = css;
           document.body.appendChild(styleNode);
         }
-        if (selector) {
-          const nodes = document.querySelectorAll(selector);
-          if (nodes && nodes.length) {
-            for (let i = 0; i < nodes.length; i++) {
-              const n = nodes[i];
-              const div = document.createElement('div');
-              div.classList.add('slick-explorer');
-              n.insertAdjacentElement('afterend', div);
-            }
-          }
-        }
-        if (stripSelector) {
-          const nodes = document.querySelectorAll(stripSelector);
-          if (nodes && nodes.length) {
-            for (let i = 0; i < nodes.length; i++) {
-              const n = nodes[i];
-              const div = document.createElement('div');
-              div.classList.add('slick-film-strip');
-              n.insertAdjacentElement('afterend', div);
-            }
-          }
-        }
         const s = document.createElement('script');
         s.src = scriptUrl;
         document.head.appendChild(s);
       }
-    })('${options.siteCode}', ${css}, '${options.selector}', '${options.stripSelector}', '${serverUrl}');
+    })('${options.siteCode}', ${css}, '${options.selector}', '${options.stripSelector}', '${serverUrl}', '${options.stripPosition}', '${options.explorerPosition}');
   `;
   console.log(code);
   chrome.tabs.executeScript({ code });
