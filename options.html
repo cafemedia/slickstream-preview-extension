@@ -24,7 +24,7 @@
       box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2);
     }
 
-    input {
+    input[type="text"] {
       display: block;
       width: 100%;
       box-sizing: border-box;
@@ -95,18 +95,69 @@
       font-size: 12px;
       font-weight: 400;
     }
+
+    label {
+      margin-right: 10px;
+    }
+
+    fieldset {
+      margin: 20px 0;
+    }
   </style>
 </head>
 
 <body>
   <div class="card">
-    <input id="server" placeholder="Embed Script URL">
+    <input id="server" type="text" placeholder="Embed Script URL">
   </div>
   <div class="card">
-    <input id="host" placeholder="Host URL">
-    <input id="siteCode" placeholder="Site Code">
-    <input id="selector" placeholder="After selector for Site Explorer">
-    <input id="stripSelector" placeholder="After selector for Film Strip">
+    <input id="host" type="text" placeholder="Host URL">
+    <input id="siteCode" type="text" placeholder="Site Code">
+    <fieldset>
+      <legend>Film Strip Selector</legend>
+      <div>
+        <label>
+          <input type="radio" id="stripBefore" name="filmStripPosition" value="before selector" />
+          before
+        </label>
+        <label>
+          <input type="radio" id="stripAfter" name="filmStripPosition" value="after selector" checked />
+          after
+        </label>
+        <label>
+          <input type="radio" id="stripFirstChild" name="filmStripPosition" value="first child of selector" />
+          first child
+        </label>
+        <label>
+          <input type="radio" id="stripLastChild" name="filmStripPosition" value="last child of selector" />
+          last child
+        </label>
+      </div>
+      <input id="stripSelector" type="text" placeholder="After selector for Film Strip">
+    </fieldset>
+
+    <fieldset>
+      <legend>Explorer Selector</legend>
+      <div>
+        <label>
+          <input type="radio" id="explorerBefore" name="explorerPosition" value="before selector" />
+          before
+        </label>
+        <label>
+          <input type="radio" id="explorerAfter" name="explorerPosition" value="after selector" checked />
+          after
+        </label>
+        <label>
+          <input type="radio" id="explorerFirstChild" name="explorerPosition" value="first child of selector" />
+          first child
+        </label>
+        <label>
+          <input type="radio" id="explorerLastChild" name="explorerPosition" value="last child of selector" />
+          last child
+        </label>
+      </div>
+      <input id="selector" type="text" placeholder="After selector for Site Explorer">
+    </fieldset>
     <textarea id="css" placeholder="Custom CSS"></textarea>
     <div style="margin-top: 40px; text-align: center;">
       <button id="btnClear">Clear</button>
