@@ -11,6 +11,10 @@ async function getSiteData() {
 }
 
 function inject(options) {
+  let scriptUrl = serverUrl;
+  if (options.siteCode) {
+    scriptUrl += '?site=' + encodeURIComponent(options.siteCode);
+  }
   const css = "`" + (options.css || '').replace('\n', '') + "`";
   const code = `
     ((siteCode, css, selector, stripSelector, scriptUrl, stripPosition, explorerPosition) => {
@@ -40,7 +44,7 @@ function inject(options) {
         s.src = scriptUrl;
         document.head.appendChild(s);
       }
-    })('${options.siteCode}', ${css}, '${options.selector}', '${options.stripSelector}', '${serverUrl}', '${options.stripPosition}', '${options.explorerPosition}');
+    })('${options.siteCode}', ${css}, '${options.selector}', '${options.stripSelector}', '${scriptUrl}', '${options.stripPosition}', '${options.explorerPosition}');
   `;
   console.log(code);
   chrome.tabs.executeScript({ code });
