@@ -17,7 +17,7 @@ function inject(options) {
   }
   const css = "`" + (options.css || '').replace('\n', '') + "`";
   const code = `
-    ((siteCode, css, selector, stripSelector, scriptUrl, stripPosition, explorerPosition) => {
+    ((siteCode, css, selector, stripSelector, scriptUrl, stripPosition, explorerPosition, omitStripToolbar, filmStripToolbar) => {
       stripPosition = stripPosition || 'after selector';
       explorerPosition = explorerPosition || 'after selector';
       if (!window.slick) {
@@ -31,8 +31,12 @@ function inject(options) {
         if (stripSelector) {
           window.slick.filmStrip = {
             position: stripPosition,
-            selector: stripSelector
+            selector: stripSelector,
+            omitToolbar: omitStripToolbar || false
           };
+        }
+        if (filmStripToolbar) {
+          window.slick.filmStripToolbar = true;
         }
         localStorage.setItem('slick-nav-extension-config', JSON.stringify(window.slick));
         if (css) {
@@ -44,7 +48,7 @@ function inject(options) {
         s.src = scriptUrl;
         document.head.appendChild(s);
       }
-    })('${options.siteCode}', ${css}, '${options.selector}', '${options.stripSelector}', '${scriptUrl}', '${options.stripPosition}', '${options.explorerPosition}');
+    })('${options.siteCode}', ${css}, '${options.selector}', '${options.stripSelector}', '${scriptUrl}', '${options.stripPosition}', '${options.explorerPosition}', ${options.omitStripToolbar}, ${options.filmStripToolbar});
   `;
   console.log(code);
   chrome.tabs.executeScript({ code });

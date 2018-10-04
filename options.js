@@ -12,11 +12,14 @@ const stripBefore = document.getElementById('stripBefore');
 const stripAfter = document.getElementById('stripAfter');
 const stripFirstChild = document.getElementById('stripFirstChild');
 const stripLastChild = document.getElementById('stripLastChild');
+const omitStripToolbar = document.getElementById('omitStripToolbar');
 
 const explorerBefore = document.getElementById('explorerBefore');
 const explorerAfter = document.getElementById('explorerAfter');
 const explorerFirstChild = document.getElementById('explorerFirstChild');
 const explorerLastChild = document.getElementById('explorerLastChild');
+
+const filmStripToolbar = document.getElementById('filmStripToolbar');
 
 let serverUrl = '';
 let data = {};
@@ -56,7 +59,9 @@ function onCardSave() {
     stripSelector: stripSelector.value.trim(),
     css: css.value.trim(),
     stripPosition,
-    explorerPosition
+    explorerPosition,
+    omitStripToolbar: omitStripToolbar.checked,
+    filmStripToolbar: filmStripToolbar.checked
   };
   currentHost = hostUrl;
   if (currentHost) {
@@ -97,6 +102,8 @@ function clearCard() {
   stripBefore.checked = false;
   stripFirstChild.checked = false;
   stripLastChild.checked = false;
+  omitStripToolbar.checked = false;
+  filmStripToolbar.checked = false;
 }
 
 function refreshSites() {
@@ -124,6 +131,8 @@ function refreshSites() {
         stripSelector.value = d.stripSelector;
         css.value = d.css;
         host.value = d.host;
+        omitStripToolbar.checked = d.omitStripToolbar || false;
+        filmStripToolbar.checked = d.filmStripToolbar || false;
 
         stripAfter.checked = false;
         stripBefore.checked = false;
