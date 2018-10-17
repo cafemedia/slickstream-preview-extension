@@ -17,7 +17,7 @@ function inject(options) {
   }
   const css = "`" + (options.css || '').replace('\n', '') + "`";
   const code = `
-    ((siteCode, css, selector, stripSelector, scriptUrl, stripPosition, explorerPosition, omitStripToolbar, filmStripToolbar) => {
+    ((siteCode, css, selector, stripSelector, scriptUrl, stripPosition, explorerPosition, omitStripToolbar, filmStripToolbar, linkHighlighter) => {
       stripPosition = stripPosition || 'after selector';
       explorerPosition = explorerPosition || 'after selector';
       if (!window.slick) {
@@ -36,7 +36,10 @@ function inject(options) {
           };
         }
         if (filmStripToolbar) {
-          window.slick.filmStripToolbar = true;
+          window.slick.filmStripToolbar = 'enabled';
+        }
+        if (linkHighlighter) {
+          window.slick.linkHighlighter = 'enabled';
         }
         localStorage.setItem('slick-nav-extension-config', JSON.stringify(window.slick));
         if (css) {
@@ -48,7 +51,7 @@ function inject(options) {
         s.src = scriptUrl;
         document.head.appendChild(s);
       }
-    })('${options.siteCode}', ${css}, '${options.selector}', '${options.stripSelector}', '${scriptUrl}', '${options.stripPosition}', '${options.explorerPosition}', ${options.omitStripToolbar}, ${options.filmStripToolbar});
+    })('${options.siteCode}', ${css}, '${options.selector}', '${options.stripSelector}', '${scriptUrl}', '${options.stripPosition}', '${options.explorerPosition}', ${options.omitStripToolbar}, ${options.filmStripToolbar}, ${options.linkHighlighter});
   `;
   console.log(code);
   chrome.tabs.executeScript({ code });

@@ -20,6 +20,7 @@ const explorerFirstChild = document.getElementById('explorerFirstChild');
 const explorerLastChild = document.getElementById('explorerLastChild');
 
 const filmStripToolbar = document.getElementById('filmStripToolbar');
+const linkHighlighter = document.getElementById('linkHighlighter');
 
 let serverUrl = '';
 let data = {};
@@ -61,7 +62,8 @@ function onCardSave() {
     stripPosition,
     explorerPosition,
     omitStripToolbar: omitStripToolbar.checked,
-    filmStripToolbar: filmStripToolbar.checked
+    filmStripToolbar: filmStripToolbar.checked,
+    linkHighlighter: linkHighlighter.checked
   };
   currentHost = hostUrl;
   if (currentHost) {
@@ -104,6 +106,7 @@ function clearCard() {
   stripLastChild.checked = false;
   omitStripToolbar.checked = false;
   filmStripToolbar.checked = false;
+  linkHighlighter.checked = false;
 }
 
 function refreshSites() {
@@ -133,6 +136,7 @@ function refreshSites() {
         host.value = d.host;
         omitStripToolbar.checked = d.omitStripToolbar || false;
         filmStripToolbar.checked = d.filmStripToolbar || false;
+        linkHighlighter.checked = d.linkHighlighter || false;
 
         stripAfter.checked = false;
         stripBefore.checked = false;
