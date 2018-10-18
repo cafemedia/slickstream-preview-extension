@@ -40,7 +40,7 @@ function inject(options) {
         if (linkHighlighter) {
           window.slick.linkHighlighter = { state: 'enabled' };
         }
-        localStorage.setItem('slick-nav-extension-config', JSON.stringify(window.slick));
+        localStorage.setItem('slick-nav-extension-config-2', JSON.stringify(window.slick));
         if (css) {
           const styleNode = document.createElement('style');
           styleNode.innerHTML = css;

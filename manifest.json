@@ -1,6 +1,6 @@
 {
   "name": "Slick Preview Extension",
-  "version": "0.4.4",
+  "version": "0.4.5",
   "description": "Preview Slick widgets on a website",
   "manifest_version": 2,
   "options_page": "options.html",
