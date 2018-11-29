@@ -1,67 +1,63 @@
-let serverUrl = '';
+let data = {};
 
-async function getSiteData() {
-  return new Promise((resolve) => {
-    chrome.storage.sync.get(['siteData', 'server'], (result) => {
-      const siteData = result.siteData;
-      serverUrl = result.server || 'https://poweredbyslick.com//e1/embed-nav.js';
-      resolve(siteData || {});
-    });
+function refreshData() {
+  chrome.storage.sync.get(['hostData', 'server'], (result) => {
+    const hostData = result.hostData;
+    serverUrl = result.server || 'https://poweredbyslick.com/e2/embed-nav.js';
+    data = hostData || {};
   });
 }
+refreshData();
 
-function inject(options) {
-  let scriptUrl = serverUrl;
-  if (options.siteCode) {
-    scriptUrl += '?site=' + encodeURIComponent(options.siteCode);
-  }
-  const css = "`" + (options.css || '').replace('\n', '') + "`";
+function injectScript(tabId, url) {
   const code = `
-    ((siteCode, css, selector, stripSelector, scriptUrl, stripPosition, explorerPosition, filmStripToolbar, linkHighlighter) => {
-      stripPosition = stripPosition || 'after selector';
-      explorerPosition = explorerPosition || 'after selector';
-      if (!window.slick) {
-        window.slick = { site: siteCode };
-        if (selector) {
-          window.slick.explorer = {
-            position: explorerPosition,
-            selector: selector
-          };
-        }
-        if (stripSelector) {
-          window.slick.filmStrip = {
-            position: stripPosition,
-            selector: stripSelector
-          };
-        }
-        if (filmStripToolbar) {
-          window.slick.filmStripToolbar = { state: 'enabled' };
-        }
-        if (linkHighlighter) {
-          window.slick.linkHighlighter = { state: 'enabled' };
-        }
-        localStorage.setItem('slick-nav-extension-config-2', JSON.stringify(window.slick));
-        if (css) {
-          const styleNode = document.createElement('style');
-          styleNode.innerHTML = css;
-          document.body.appendChild(styleNode);
-        }
-        const s = document.createElement('script');
-        s.src = scriptUrl;
-        document.head.appendChild(s);
-      }
-    })('${options.siteCode}', ${css}, '${options.selector}', '${options.stripSelector}', '${scriptUrl}', '${options.stripPosition}', '${options.explorerPosition}', ${options.filmStripToolbar}, ${options.linkHighlighter});
+  ((scriptUrl) => {
+    const es = document.getElementById('slickExtensionInjectedScript');
+    if (!es) {
+      const s = document.createElement('script');
+      s.id = 'slickExtensionInjectedScript'
+      s.src = scriptUrl;
+      document.head.appendChild(s);
+    }
+  })('${url}');
   `;
-  console.log(code);
-  chrome.tabs.executeScript({ code });
+  chrome.tabs.executeScript(tabId, { code });
 }
 
-chrome.webNavigation.onDOMContentLoaded.addListener(async (data) => {
-  if (!data.frameId) {
-    const host = new URL(data.url).host;
-    const siteData = await getSiteData();
-    if (siteData[host] && siteData[host].siteCode) {
-      inject(siteData[host])
+chrome.webRequest.onBeforeRequest.addListener((details) => {
+  const initiator = (new URL(details.initiator)).host;
+  let cancel = (details.url.indexOf('guild-nav-embed.js') === -1) && (details.url.indexOf("extension=true") === -1)
+  cancel = !!(cancel && data[initiator]);
+  if (cancel) {
+    const d = data[initiator];
+    const tabId = details.tabId;
+    const scriptUrl = `${d.server}?site=${d.siteCode}&extension=true`;
+    Promise.resolve().then(() => {
+      injectScript(tabId, scriptUrl);
+    });
+  }
+  console.log(cancel, initiator, details, data);
+  return { cancel };
+},
+  { urls: ["*://poweredbyslick.com/e2/*", "*://guild.systems/e2/*"] },
+  ["blocking"]
+);
+
+chrome.storage.onChanged.addListener((changes, namespace) => {
+  if (changes.hostData && changes.hostData.newValue) {
+    data = changes.hostData.newValue;
+  }
+});
+
+chrome.webNavigation.onDOMContentLoaded.addListener(async (tabData) => {
+  if (!tabData.frameId) {
+    const host = new URL(tabData.url).host;
+    const d = data[host];
+    if (d) {
+      const scriptUrl = `${d.server}?site=${d.siteCode}&extension=true`;
+      Promise.resolve().then(() => {
+        injectScript(tabData.tabId, scriptUrl);
+      });
     }
   }
 });
