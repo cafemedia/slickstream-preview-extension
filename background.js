@@ -12,9 +12,13 @@ refreshData();
 function injectScript(tabId, url) {
   const code = `
   ((scriptUrl) => {
-    const s = document.createElement('script');
-    s.src = scriptUrl;
-    document.head.appendChild(s);
+    const es = document.getElementById('slickExtensionInjectedScript');
+    if (!es) {
+      const s = document.createElement('script');
+      s.id = 'slickExtensionInjectedScript'
+      s.src = scriptUrl;
+      document.head.appendChild(s);
+    }
   })('${url}');
   `;
   chrome.tabs.executeScript(tabId, { code });
@@ -42,5 +46,18 @@ chrome.webRequest.onBeforeRequest.addListener((details) => {
 chrome.storage.onChanged.addListener((changes, namespace) => {
   if (changes.hostData && changes.hostData.newValue) {
     data = changes.hostData.newValue;
+  }
+});
+
+chrome.webNavigation.onDOMContentLoaded.addListener(async (tabData) => {
+  if (!tabData.frameId) {
+    const host = new URL(tabData.url).host;
+    const d = data[host];
+    if (d) {
+      const scriptUrl = `${d.server}?site=${d.siteCode}&extension=true`;
+      Promise.resolve().then(() => {
+        injectScript(tabData.tabId, scriptUrl);
+      });
+    }
   }
 });
