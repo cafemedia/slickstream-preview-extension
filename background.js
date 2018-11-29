@@ -5,7 +5,6 @@ function refreshData() {
     const hostData = result.hostData;
     serverUrl = result.server || 'https://poweredbyslick.com/e2/embed-nav.js';
     data = hostData || {};
-    console.log('data loaded');
   });
 }
 refreshData();
@@ -39,3 +38,9 @@ chrome.webRequest.onBeforeRequest.addListener((details) => {
   { urls: ["*://poweredbyslick.com/e2/*", "*://guild.systems/e2/*"] },
   ["blocking"]
 );
+
+chrome.storage.onChanged.addListener((changes, namespace) => {
+  if (changes.hostData && changes.hostData.newValue) {
+    data = changes.hostData.newValue;
+  }
+});
