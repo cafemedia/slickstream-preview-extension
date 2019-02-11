@@ -3,7 +3,7 @@ let data = {};
 function refreshData() {
   chrome.storage.sync.get(['hostData', 'server'], (result) => {
     const hostData = result.hostData;
-    serverUrl = result.server || 'https://poweredbyslick.com/e2/embed-nav.js';
+    serverUrl = result.server || 'https://slickstream.com/e2/embed-nav.js';
     data = hostData || {};
   });
 }
@@ -39,7 +39,7 @@ chrome.webRequest.onBeforeRequest.addListener((details) => {
   console.log(cancel, initiator, details, data);
   return { cancel };
 },
-  { urls: ["*://poweredbyslick.com/e2/*", "*://guild.systems/e2/*"] },
+  { urls: ["*://poweredbyslick.com/e2/*", "*://guild.systems/e2/*", "*://slickstream.com/e2/*", "*://slickstream.us/e2/*"] },
   ["blocking"]
 );
 
