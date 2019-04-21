@@ -26,7 +26,7 @@ function injectScript(tabId, url) {
 
 chrome.webRequest.onBeforeRequest.addListener((details) => {
   const initiator = (new URL(details.initiator)).host;
-  let cancel = (details.url.indexOf('guild-nav-embed.js') === -1) && (details.url.indexOf("extension=true") === -1)
+  let cancel = (details.url.indexOf('guild-nav-embed.js') === -1) && (details.url.indexOf('slick-embed.js') === -1) && (details.url.indexOf("extension=true") === -1)
   cancel = !!(cancel && data[initiator]);
   if (cancel) {
     const d = data[initiator];
