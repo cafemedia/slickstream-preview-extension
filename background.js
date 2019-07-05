@@ -9,16 +9,21 @@ function refreshData() {
 }
 refreshData();
 
-// slickExtensionInjectedScript
-
 function injectScript(tabId, url, uid) {
   const code = `
   ((scriptUrl, uid) => {
     const es = uid && document.getElementById(uid);
     if (!es) {
       const s = document.createElement('script');
-      s.id = uid;
+      if (uid) {
+        s.id = uid;
+      }
       s.src = scriptUrl;
+      if (uid) {
+        const s2 = document.createElement('script');
+        s2.textContent = 'window._slickEmbedScriptLoaded = false;';
+        document.head.appendChild(s2);
+      }
       document.head.appendChild(s);
     }
   })('${url}', '${uid}');
