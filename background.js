@@ -63,7 +63,7 @@ chrome.webRequest.onBeforeRequest.addListener((details) => {
   }
   return { cancel };
 },
-  { urls: ["*://poweredbyslick.com/e2/*", "*://guild.systems/e2/*", "*://slickstream.com/e2/*", "*://slickstream.us/e2/*"] },
+  { urls: ["*://poweredbyslick.com/e2/*", "*://guild.systems/e2/*", "*://slickstream.com/e2/*", "*://app.slickstream.com/e2/*", "*://slickstream.us/e2/*", "*://app.slickstream.us/e2/*"] },
   ["blocking"]
 );
 

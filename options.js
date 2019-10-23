@@ -5,7 +5,7 @@ const server = document.getElementById('server');
 const host = document.getElementById('host');
 const sitesPanel = document.getElementById('sitesPanel');
 
-let lastServer = 'https://slickstream.com/e2/embed-nav.js';
+let lastServer = 'https://app.slickstream.com/e2/embed-nav.js';
 let data = {};
 let currentHost = '';
 
