@@ -26,6 +26,12 @@ function injectScript(tabId, url, uid) {
       }
       document.head.appendChild(s);
     }
+    const extensionMeta = document.querySelector('meta[name="slick-extension-active"]');
+    if (!extensionMeta) {
+      const meta = document.createElement('meta');
+      meta.setAttribute('name', 'slick-extension-active');
+      document.head.appendChild(meta);
+    }
   })('${url}', '${uid}');
   `;
   chrome.tabs.executeScript(tabId, { code });
