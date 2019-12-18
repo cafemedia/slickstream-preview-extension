@@ -53,7 +53,7 @@ chrome.webRequest.onBeforeRequest.addListener((details) => {
       const q = a.search || '';
       if (q) {
         if (q.indexOf('site=') >= 0) {
-          a.search = `?site=${d.siteCode}&extension=true`;
+          a.search = q.substring(0, q.indexOf('site=')) + `site=${d.siteCode}&extension=true`;
         } else {
           a.search = q + '&extension=true';
         }
