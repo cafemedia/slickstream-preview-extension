@@ -63,13 +63,15 @@ chrome.webRequest.onBeforeRequest.addListener((details) => {
       scriptUrl = a.toString();
       scriptId = '';
     }
-    Promise.resolve().then(() => {
-      injectScript(tabId, scriptUrl, scriptId);
-    });
+    if (details.url.indexOf('guild-nav-embed.js') < 0) {
+      Promise.resolve().then(() => {
+        injectScript(tabId, scriptUrl, scriptId);
+      });
+    }
   }
   return { cancel };
 },
-  { urls: ["*://poweredbyslick.com/e2/*", "*://guild.systems/e2/*", "*://slickstream.com/e2/*", "*://app.slickstream.com/e2/*", "*://slickstream.us/e2/*", "*://app.slickstream.us/e2/*"] },
+  { urls: ["*://slickstream.com/e2/*", "*://*.slickstream.com/e2/*", "*://slickstream.us/e2/*", "*://*.slickstream.us/e2/*"] },
   ["blocking"]
 );
 
