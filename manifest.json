@@ -1,6 +1,6 @@
 {
   "name": "Slick Preview Extension",
-  "version": "0.6.2",
+  "version": "0.7.0",
   "description": "Preview Slick widgets on a website",
   "manifest_version": 2,
   "options_page": "options.html",
@@ -11,6 +11,7 @@
     "webNavigation",
     "webRequest",
     "webRequestBlocking",
+    "browsingData",
     "http://*/",
     "https://*/"
   ],
