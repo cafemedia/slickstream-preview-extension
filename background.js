@@ -1,66 +1,91 @@
 let data = {}; // Settings with site data
 
-function injectScript(tabId, url, uid) {
+function inject(tabId, scriptUrl, siteCode) {
+  const origin = (new URL(scriptUrl)).origin;
   const code = `
-  ((scriptUrl, uid) => {
-    const es = uid && document.getElementById(uid);
-    if (!es) {
-      const s = document.createElement('script');
-      if (uid) {
-        s.id = uid;
-      }
-      s.src = scriptUrl;
-      if (uid) {
-        const s2 = document.createElement('script');
-        s2.textContent = 'window._slickEmbedScriptLoaded = false;';
-        document.head.appendChild(s2);
-      }
-      document.head.appendChild(s);
-    }
+  "use strict";
+  ((embedRoot, scriptUrl, siteCode) => {
+    const W = window;
+    W.slickSnippetVersion = '1.18.0';
+    W.slickSnippetTime = (performance || Date).now();
+    W.slickEmbedRoot = embedRoot;
+    W.slickSiteCode = siteCode;
+    let cache;
+    const scriptLoader = async (url) => {
+        if ((!cache) && ('caches' in self)) {
+            try {
+                cache = await caches.open('slickstream1');
+            }
+            catch (err) {
+                console.log(err);
+            }
+        }
+        let response;
+        if (cache) {
+            try {
+                const request = new Request(url, { cache: 'no-store' });
+                response = await cache.match(request);
+                if (!response) {
+                    await cache.add(request);
+                    response = await cache.match(request);
+                    if (response && (!response.ok)) {
+                        response = undefined;
+                        void cache.delete(request);
+                    }
+                }
+            }
+            catch (err) {
+                console.warn('Slick: ', err);
+            }
+        }
+        const script = document.createElement('script');
+        if (response) {
+            script.type = 'application/javascript';
+            script.appendChild(document.createTextNode(await response.text()));
+        }
+        else {
+            script.src = url;
+        }
+        (document.head || document.body).appendChild(script);
+        return script;
+    };
+    
+    scriptLoader((new URL(scriptUrl + '?extension=true&site=' + siteCode, embedRoot)).href);
+
     const extensionMeta = document.querySelector('meta[name="slick-extension-active"]');
     if (!extensionMeta) {
       const meta = document.createElement('meta');
       meta.setAttribute('name', 'slick-extension-active');
       document.head.appendChild(meta);
     }
-  })('${url}', '${uid}');
+  })(
+    '${origin}',
+    '${origin}/e3/embed.js',
+    '${siteCode}'
+  );
   `;
-  chrome.tabs.executeScript(tabId, { code });
+
+  const codeToRun = `
+  const s = document.createElement('script');
+  s.id = 'slickExtensionRootScript';
+  s.src = (new URL('${origin}/e3/embed.js?site=${siteCode}', '${origin}')).href;
+  document.head.appendChild(s);
+
+  const s2 = document.createElement('script');
+  s2.id = 'slickExtensionContentScript';
+  s2.textContent = \`${code}\`;
+  document.head.appendChild(s2);
+  `;
+
+  chrome.tabs.executeScript(tabId, { code: codeToRun });
 }
+
 
 function attach() {
   chrome.webRequest.onBeforeRequest.addListener((details) => {
     const initiator = (new URL(details.initiator)).host;
     let cancel = details.url.indexOf("extension=true") === -1;
     cancel = !!(cancel && data[initiator]);
-    if (cancel) {
-      const d = data[initiator];
-      const tabId = details.tabId;
-      let scriptUrl = `${d.server}?site=${d.siteCode}&extension=true`;
-      let scriptId = 'slickExtensionRootScript';
-      if (details.url.indexOf('guild-nav-embed.js') >= 0 || details.url.indexOf('slick-embed.js') >= 0 || details.url.indexOf('embed.js') >= 0) {
-        const a = new URL(details.url);
-        const b = new URL(d.server);
-        a.host = b.host;
-        const q = a.search || '';
-        if (q) {
-          if (q.indexOf('site=') >= 0) {
-            a.search = q.substring(0, q.indexOf('site=')) + `site=${d.siteCode}&extension=true`;
-          } else {
-            a.search = q + '&extension=true';
-          }
-        } else {
-          a.search = '?extension=true';
-        }
-        scriptUrl = a.toString();
-        scriptId = '';
-      }
-      if (details.url.indexOf('guild-nav-embed.js') < 0) {
-        Promise.resolve().then(() => {
-          injectScript(tabId, scriptUrl, scriptId);
-        });
-      }
-    }
     return { cancel };
   },
     {
@@ -89,10 +114,8 @@ function attach() {
       const host = new URL(tabData.url).host;
       const d = data[host];
       if (d) {
-        console.log('domC loaded');
-        const scriptUrl = `${d.server}?site=${d.siteCode}&extension=true`;
         Promise.resolve().then(() => {
-          injectScript(tabData.tabId, scriptUrl, 'slickExtensionRootScript');
+          inject(tabData.tabId, d.server, d.siteCode);
         });
       }
     }
