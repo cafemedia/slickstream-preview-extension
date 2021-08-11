@@ -4,73 +4,99 @@ function inject(tabId, scriptUrl, siteCode) {
   const origin = (new URL(scriptUrl)).origin;
   const code = `
   "use strict";
-  ((embedRoot, scriptUrl, siteCode) => {
-    const W = window;
-    W.slickSnippetVersion = '1.18.0';
-    W.slickSnippetTime = (performance || Date).now();
-    W.slickEmbedRoot = embedRoot;
-    W.slickSiteCode = siteCode;
-    let cache;
-    const scriptLoader = async (url) => {
-        if ((!cache) && ('caches' in self)) {
-            try {
-                cache = await caches.open('slickstream1');
-            }
-            catch (err) {
-                console.log(err);
-            }
-        }
-        let response;
-        if (cache) {
-            try {
-                const request = new Request(url, { cache: 'no-store' });
-                response = await cache.match(request);
-                if (!response) {
-                    await cache.add(request);
-                    response = await cache.match(request);
-                    if (response && (!response.ok)) {
-                        response = undefined;
-                        void cache.delete(request);
-                    }
-                }
-            }
-            catch (err) {
-                console.warn('Slick: ', err);
-            }
-        }
-        const script = document.createElement('script');
-        if (response) {
-            script.type = 'application/javascript';
-            script.appendChild(document.createTextNode(await response.text()));
-        }
-        else {
-            script.src = url;
-        }
-        (document.head || document.body).appendChild(script);
-        return script;
-    };
-    
-    scriptLoader((new URL(scriptUrl + '?extension=true&site=' + siteCode, embedRoot)).href);
-
-    const extensionMeta = document.querySelector('meta[name="slick-extension-active"]');
-    if (!extensionMeta) {
-      const meta = document.createElement('meta');
-      meta.setAttribute('name', 'slick-extension-active');
-      document.head.appendChild(meta);
-    }
+  // extension injected code
+  (async (root, siteCode) => {
+      // Do nothing is no-slick is in the search query
+      if (location.search.indexOf('no-slick') >= 0) {
+          return;
+      }
+      let _cache;
+      const n = () => (performance || Date).now();
+      const ctx = window.$slickBoot = {
+          rt: root,
+          _es: n(),
+          ev: '2.0.0',
+          l: async (request, asBlob) => {
+              // This function loads a fetch request from cache storage
+              try {
+                  let fetchTime = 0;
+                  if (!_cache && ('caches' in self)) {
+                      _cache = await caches.open('slickstream-code');
+                  }
+                  if (_cache) {
+                      let response = await _cache.match(request);
+                      if (!response) {
+                          fetchTime = n();
+                          await _cache.add(request);
+                          response = await _cache.match(request);
+                          if (response && (!response.ok)) {
+                              response = undefined;
+                              _cache.delete(request);
+                          }
+                      }
+                      if (response) {
+                          return { t: fetchTime, d: (asBlob ? (await response.blob()) : (await response.json())) };
+                      }
+                  }
+              }
+              catch (err) {
+                  console.log(err);
+              }
+              return {};
+          }
+      };
+      // Load the initial JSON data
+      const req = (url) => new Request(url, { cache: 'no-store' });
+      const request = req(
+        root 
+        + '/d/page-boot-data?' 
+        + (innerWidth <= 600 ? 'mobile&' : '') 
+        + 'site='
+        + siteCode
+        + '&url='
+        + encodeURIComponent(location.href.split('#')[0])
+        + '&extension=true' );
+      let { t: timestamp, d: bootData } = await ctx.l(request);
+      if (bootData) {
+          if (bootData.bestBy < Date.now()) {
+              bootData = undefined;
+          }
+          else if (timestamp) {
+              ctx._bd = timestamp;
+          }
+      }
+      if (!bootData) {
+          ctx._bd = n();
+          bootData = await (await fetch(request)).json();
+      }
+      // Load the boot-loader
+      if (bootData) {
+          ctx.d = bootData;
+          let scriptUrl = bootData.bootUrl;
+          const { t: timestamp, d: bootBlob } = await ctx.l(req(scriptUrl), true);
+          if (bootBlob) {
+              ctx.bo = scriptUrl = URL.createObjectURL(bootBlob);
+              if (timestamp) {
+                  ctx._bf = timestamp;
+              }
+          }
+          else {
+              ctx._bf = n();
+          }
+          const script = document.createElement('script');
+          script.src = scriptUrl;
+          document.head.appendChild(script);
+      }
+      else {
+          console.log('[Slick] Boot failed');
+      }
   })(
     '${origin}',
-    '${origin}/e3/embed.js',
     '${siteCode}'
   );
   `;
 
   const codeToRun = `
-  const s = document.createElement('script');
-  s.id = 'slickExtensionRootScript';
-  s.src = (new URL('${origin}/e3/embed.js?site=${siteCode}', '${origin}')).href;
-  document.head.appendChild(s);
-
   const s2 = document.createElement('script');
   s2.id = 'slickExtensionContentScript';
   s2.textContent = \`${code}\`;
@@ -85,6 +111,7 @@ function attach() {
   chrome.webRequest.onBeforeRequest.addListener((details) => {
     const initiator = (new URL(details.initiator)).host;
     let cancel = details.url.indexOf("extension=true") === -1;
+    console.log('request', details.url, cancel, data[initiator]);
     cancel = !!(cancel && data[initiator]);
     return { cancel };
   },
@@ -97,7 +124,9 @@ function attach() {
         "*://slickstream.com/e3/*",
         "*://*.slickstream.com/e3/*",
         "*://slickstream.us/e3/*",
-        "*://*.slickstream.us/e3/*"
+        "*://*.slickstream.us/e3/*",
+        "*://*.slickstream.com/d/page-boot-data*",
+        "*://*.slickstream.com/d/page-boot-data/*"
       ]
     },
     ["blocking"]
@@ -147,7 +176,6 @@ function attach() {
 function refreshData() {
   chrome.storage.sync.get(['hostData', 'server'], (result) => {
     const hostData = result.hostData;
-    serverUrl = result.server || 'https://slickstream.com/e2/embed-nav.js';
     data = hostData || {};
     attach();
   });
