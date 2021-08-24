@@ -86,6 +86,13 @@ function inject(tabId, scriptUrl, siteCode) {
           const script = document.createElement('script');
           script.src = scriptUrl;
           document.head.appendChild(script);
+
+          const extensionMeta = document.querySelector('meta[name="slick-extension-active"]');
+          if (!extensionMeta) {
+            const meta = document.createElement('meta');
+            meta.setAttribute('name', 'slick-extension-active');
+            document.head.appendChild(meta);
+          }
       }
       else {
           console.log('[Slick] Boot failed');
