@@ -12,6 +12,7 @@ function inject(tabId, scriptUrl, siteCode) {
       }
       let _cache;
       const n = () => (performance || Date).now();
+      window.$slickAvoidBlobUrls = true;
       const ctx = window.$slickBoot = {
           rt: root,
           _es: n(),
@@ -73,16 +74,7 @@ function inject(tabId, scriptUrl, siteCode) {
       if (bootData) {
           ctx.d = bootData;
           let scriptUrl = bootData.bootUrl;
-          const { t: timestamp, d: bootBlob } = await ctx.l(req(scriptUrl), true);
-          if (bootBlob) {
-              ctx.bo = scriptUrl = URL.createObjectURL(bootBlob);
-              if (timestamp) {
-                  ctx._bf = timestamp;
-              }
-          }
-          else {
-              ctx._bf = n();
-          }
+          ctx._bf = n();
           const script = document.createElement('script');
           script.src = scriptUrl;
           document.head.appendChild(script);
