@@ -131,6 +131,23 @@ function attach() {
     ["blocking"]
   );
 
+  chrome.webRequest.onHeadersReceived.addListener((details) => {
+    for (let i = 0; i < details.responseHeaders.length; i++) {
+      const headerName = details.responseHeaders[i].name.toLowerCase();
+      if (headerName === 'content-security-policy' || headerName === 'x-webkit-csp') {
+        const csp = `default-src * 'unsafe-inline' data: blob:; `;
+        details.responseHeaders[i].value = csp;
+        console.log('CSP removed');
+      }
+    }
+    return {
+      responseHeaders: details.responseHeaders
+    };
+  }, {
+    urls: ["<all_urls>"],
+    types: ['main_frame']
+  }, ["blocking", "responseHeaders"]);
+
   chrome.storage.onChanged.addListener((changes) => {
     if (changes.hostData && changes.hostData.newValue) {
       data = changes.hostData.newValue;
